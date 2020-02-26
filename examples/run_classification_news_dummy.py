@@ -202,7 +202,7 @@ def main(config):
 
     varlen_feature_columns = [VarLenSparseFeat(SparseFeat('history', vocabulary_size=len(item2idx) + 1,
                                               embedding_dim=emb_dim_fm, embedding_name="hist", group_name="history"),
-                                                maxlen=config.hist_max_len, combiner='sum')]
+                                                maxlen=config.hist_max_len, combiner='mean')]
     # Var1: combiner='sum'
     # Var2: combiner='mean'
     # Note: combine those features via concatination NOT mean -> produce feature matrix of shape hist_max_len x emb_dim
@@ -219,9 +219,11 @@ def main(config):
 
     #train_model_input = {name: train[name] for name in feature_names}
     #    test_model_input = {name: test[name] for name in feature_names}
-    train_model_input = {'user_id': train['user_id'], 'history': train['history']}
-    test_model_input = {'user_id': test['user_id'], 'history': test['history']}
+    train_idx = list(train['user_id'].index)
+    train_hist = history_ids[train_idx]
 
+    train_model_input = {'user_id': train['user_id'], 'history': train_hist}
+    test_model_input = {'user_id': test['user_id'], 'history': history_ids[list(test['user_id'].index)]}
 
     # 4.Define Model,train,predict and evaluate
 
